@@ -1,0 +1,65 @@
+from typing import List, Dict
+
+def calculate_efficiency(distance_logs: List[Dict], fuel_logs: List[Dict]) -> List[Dict]:
+    """
+    Matches distance and fuel records by truck_id to calculate 
+    fuel efficiency (L/100km).
+    
+    Args:
+        distance_logs: List of dicts with 'truck_id' and 'kilometers'.
+        fuel_logs: List of dicts with 'truck_id' and 'liters'.
+        
+    Returns:
+        A list of dictionaries containing the truck_id and its calculated efficiency.
+    """
+    efficiency_results = []
+
+    for dist_entry in distance_logs:
+        t_id = dist_entry['truck_id']
+        dist = dist_entry['kilometers']
+        
+        # Look for the matching ID in the fuel dataset
+        for fuel_entry in fuel_logs:
+            if fuel_entry['truck_id'] == t_id:
+                fuel = fuel_entry['liters']
+                
+                # Formula: (Liters / Kilometers) * 100
+                # We use 100 to get the standard L/100km metric
+                l_per_100km = (fuel / dist) * 100
+                
+                efficiency_results.append({
+                    'truck_id': t_id,
+                    'efficiency': round(l_per_100km, 2)
+                })
+                break # Match found, move to the next truck
+                
+    return efficiency_results
+
+def display_report(data: List[Dict]) -> None:
+    """Prints the final efficiency report to the console."""
+    print("--- FLEET EFFICIENCY REPORT ---")
+    print(f"{'TRUCK ID':<12} | {'CONSUMPTION (L/100km)':<20}")
+    print("-" * 40)
+    
+    for entry in data:
+        print(f"{entry['truck_id']:<12} | {entry['efficiency']:<20}")
+
+# --- Main Execution (Mock Data) ---
+if __name__ == "__main__":
+    # Unordered dataset 1: Distance traveled
+    gps_data = [
+        {'truck_id': 'TX-05', 'kilometers': 450},
+        {'truck_id': 'TX-01', 'kilometers': 1200},
+        {'truck_id': 'TX-03', 'kilometers': 800}
+    ]
+
+    # Unordered dataset 2: Fuel consumed
+    fuel_data = [
+        {'truck_id': 'TX-01', 'liters': 360},
+        {'truck_id': 'TX-05', 'liters': 45},
+        {'truck_id': 'TX-03', 'liters': 160}
+    ]
+
+    # Process and show results
+    final_report = calculate_efficiency(gps_data, fuel_data)
+    display_report(final_report)
